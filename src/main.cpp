@@ -1,39 +1,29 @@
 #include <Arduino.h>
-
-// // put function declarations here:
-// int myFunction(int, int);
-
-// void setup() {
-//   // put your setup code here, to run once:
-//   int result = myFunction(2, 3);
-// }
-
-// void loop() {
-//   // put your main code here, to run repeatedly:
-// }
-
-// // put function definitions here:
-// int myFunction(int x, int y) {
-//   return x + y;
-// }
-
-
 #include "pins.hpp"
-
 #include <led.hpp>
 
-using namespace Board;
+// using namespace Board;
 
-Led led(pins.led, pins.ledActiveHigh);
+// Led led(pins.led, pins.ledActiveHigh);
 
-void setup() {
-  Serial.begin(115200);
-  delay(300);
-  led.begin();
-  led.toggle();
+void setup()
+{
+  // Serial.begin(115200);
+  // delay(300);
+
+  // pinMode(pins.led, OUTPUT);
+  // digitalWrite(pins.led, pins.ledActiveHigh ? HIGH : LOW);
+
+  // 如果板载 NeoPixel 可用，则点亮为绿色
+  // #if (NEOPIXEL_PIN >= 0)
+  //   neopixelWrite(NEOPIXEL_PIN, 0, 255, 0);
+  // #endif
+  pinMode(USER_LED_PIN, OUTPUT);
+  digitalWrite(USER_LED_PIN, LOW);
 }
 
-void loop() {
-  led.toggle();
-  delay(500);
+void loop()
+{
+  // led.toggle();
+  // delay(500);
 }
