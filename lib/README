@@ -44,3 +44,9 @@ libraries by scanning project source files.
 
 More information about PlatformIO Library Dependency Finder
 - https://docs.platformio.org/page/librarymanager/ldf.html
+
+# 触碰与RGB灯联动的逻辑
+
+- 当触碰传感器检测到触碰时，RGB灯变为红色，表示触碰状态。
+- 当触碰传感器检测到没有触碰时，RGB灯变为绿色，表示非触碰状态。
+- 长按触碰传感器超过2秒钟时，RGB灯变为蓝色，表示长按状态。 dubang
