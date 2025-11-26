@@ -12,7 +12,7 @@ void Touch::init()
     digitalWrite(21, LOW);
 }
 
-void Touch::loop()
+void Touch::begin()
 {
     bool raw = digitalRead(TOUCH_PIN);
     bool touched = TOUCH_ACTIVE_HIGH ? raw : !raw;

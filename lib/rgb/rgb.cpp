@@ -44,7 +44,7 @@ void setRgbDigital(bool r, bool g, bool b)
     }
 }
 
-void Rgb::loop()
+void Rgb::tick()
 {
 
     setRgbDigital(true, false, false);
@@ -52,7 +52,7 @@ void Rgb::loop()
 
     setRgbDigital(false, true, false);
     delay(1000);
-
+    
     setRgbDigital(false, false, true);
     delay(1000);
 
