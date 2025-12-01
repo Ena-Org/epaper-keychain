@@ -2,7 +2,7 @@
 #include "pins.hpp"
 #include "rgb.hpp"
 #include "touch.hpp"
-#include "touch_rgb_feature.hpp"
+#include "touch_rgb.hpp"
 
 static Rgb rgb;
 static Touch touch;
