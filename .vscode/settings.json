@@ -1,7 +1,8 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": [],
-    "C_Cpp.errorSquiggles": "enabled",
-    "editor.tabSize": 2,
-    "files.autoSave": "afterDelay"
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": [],
+  "C_Cpp.errorSquiggles": "enabled",
+  "editor.tabSize": 2,
+  "files.autoSave": "afterDelay",
+  "makefile.configureOnOpen": true
 }

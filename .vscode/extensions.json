@@ -3,7 +3,8 @@
     // for the documentation about the extensions.json format
     "recommendations": [
         "ms-python.python",
-        "platformio.platformio-ide"
+        "platformio.platformio-ide",
+        "ms-vscode.makefile-tools"
     ],
     "unwantedRecommendations": [
         "ms-vscode.cpptools-extension-pack"
