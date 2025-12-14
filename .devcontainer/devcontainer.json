@@ -9,7 +9,27 @@
 		"ghcr.io/devcontainers/features/copilot-cli:1": {},
 		"ghcr.io/devcontainers/features/python:1": {}
 	},
-	"runArgs": ["--dns=1.1.1.1", "--dns=8.8.8.8"],
+	// Add host-gateway so host proxies (if any) are reachable; keep public DNS fallback
+	"runArgs": [
+		"--add-host=host.docker.internal:host-gateway",
+		"--dns=1.1.1.1",
+		"--dns=8.8.8.8"
+	],
+	// Explicitly clear proxy inside container to avoid inheriting unreachable host proxy (e.g., 127.0.0.1:7897)
+	"remoteEnv": {
+		"HTTP_PROXY": "",
+		"HTTPS_PROXY": "",
+		"ALL_PROXY": "",
+		"NO_PROXY": "localhost,127.0.0.1,::1"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"github.copilot",
+				"github.copilot-chat"
+			]
+		}
+	},
 	"postCreateCommand": "make install"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
