@@ -1,0 +1,260 @@
+#include <Arduino.h>
+#include "led.hpp"
+#include "touch.hpp"
+#include "epaper.hpp"
+
+static Led led;
+static Touch touch;
+
+void setup()
+{
+    // Serial.begin(115200);
+    // delay(2000);
+    // led.init();
+    // touch.init();
+    // EPaper::init();
+    // // Run a simple black/white diagnostic first; if this fails, SPI wiring/pins are wrong
+    // EPaper::showBlackWhiteTest();
+    // // Then try the accumulating test once we know refresh works
+    // EPaper::showAccumulatingTest(10, 500);
+
+    Serial.println(">>> setup: before led/touch init");
+    led.init();
+    touch.init();
+    Serial.println(">>> setup: before EPaper::init");
+    EPaper::init();
+    Serial.println(">>> setup: after EPaper::init, before showBlackWhiteTest");
+    EPaper::showBlackWhiteTest();
+    Serial.println(">>> setup: after showBlackWhiteTest");
+}
+
+void loop()
+{
+    led.loop();
+}
+
+
+
+
+#include <Arduino.h>
+
+// 按你实际接线改这里
+#define EPD_BUSY_PIN D2
+#define EPD_RST_PIN D0 // 如果你有接 RST，建议也测一下
+
+static void watchBusy(uint32_t ms = 3000)
+{
+    int last = digitalRead(EPD_BUSY_PIN);
+    Serial.printf("[BUSY] start=%d\n", last);
+
+    uint32_t t0 = millis();
+    while (millis() - t0 < ms)
+    {
+        int v = digitalRead(EPD_BUSY_PIN);
+        if (v != last)
+        {
+            Serial.printf("[BUSY] %d -> %d at %lu ms\n", last, v, (unsigned long)(millis() - t0));
+            last = v;
+        }
+        delay(1);
+    }
+}
+
+static void readBusy(const char *tag)
+{
+    Serial.printf("[%s] BUSY=%d\n", tag, digitalRead(EPD_BUSY_PIN));
+}
+
+static void pulseReset()
+{
+    pinMode(EPD_RST_PIN, OUTPUT);
+    digitalWrite(EPD_RST_PIN, HIGH);
+    delay(20);
+    Serial.println("[RST] pulse");
+    digitalWrite(EPD_RST_PIN, LOW);
+    delay(20);
+    digitalWrite(EPD_RST_PIN, HIGH);
+}
+
+void setup()
+{
+    //   Serial.begin(115200);
+    //   delay(800);
+    //   Serial.println("\n=== BUSY pin test ===");
+
+    //   // BUSY 很容易浮空，建议先用上拉
+    //   pinMode(EPD_BUSY_PIN, INPUT_PULLUP);
+
+    //   // 先观察一段
+    //   watchBusy(2000);
+
+    //   // 如果接了 RST，试着复位一下，看 BUSY 有没有反应
+    //   pulseReset();
+    //   watchBusy(5000);
+
+    //   Serial.println("=== done ===");
+
+    Serial.begin(115200);
+    delay(800);
+    Serial.printf("BUSY pin=%d RST pin=%d\n", EPD_BUSY_PIN, EPD_RST_PIN);
+
+    pinMode(EPD_BUSY_PIN, INPUT_PULLUP);
+    readBusy("PULLUP");
+
+    pinMode(EPD_BUSY_PIN, INPUT_PULLDOWN);
+    readBusy("PULLDOWN");
+
+    pinMode(EPD_BUSY_PIN, INPUT);
+    delay(5);
+    readBusy("FLOAT");
+
+    // reset pulse
+    pinMode(EPD_RST_PIN, OUTPUT);
+    digitalWrite(EPD_RST_PIN, HIGH);
+    delay(20);
+    digitalWrite(EPD_RST_PIN, LOW);
+    delay(20);
+    digitalWrite(EPD_RST_PIN, HIGH);
+    delay(20);
+
+    pinMode(EPD_BUSY_PIN, INPUT_PULLUP);
+    readBusy("AFTER_RST_PULLUP");
+    pinMode(EPD_BUSY_PIN, INPUT_PULLDOWN);
+    readBusy("AFTER_RST_PULLDOWN");
+}
+
+void loop() {}
+
+
+---------------------------------------------
+
+
+
+#include <Arduino.h>
+#include "led.hpp"
+#include "touch.hpp"
+#include "epaper.hpp"
+
+static Led led;
+static Touch touch;
+
+void setup()
+{
+    Serial.begin(115200);
+    delay(2000);
+    led.init();
+    touch.init();
+    EPaper::init();
+    // Run a simple black/white diagnostic first; if this fails, SPI wiring/pins are wrong
+    EPaper::showBlackWhiteTest();
+    // Then try the accumulating test once we know refresh works
+    // EPaper::showAccumulatingTest(10, 500);
+
+    // Serial.println(">>> setup: before led/touch init");
+    // led.init();
+    // touch.init();
+    // Serial.println(">>> setup: before EPaper::init");
+    // EPaper::init();
+    // Serial.println(">>> setup: after EPaper::init, before showBlackWhiteTest");
+    // EPaper::showBlackWhiteTest();
+    // Serial.println(">>> setup: after showBlackWhiteTest");
+}
+
+void loop()
+{
+    led.loop();
+}
+
+
+----------------------------------------------
+
+
+#include <Arduino.h>
+
+// 按你实际接线改这里
+#define EPD_BUSY_PIN D2
+#define EPD_RST_PIN D0 // 如果你有接 RST，建议也测一下
+
+static void watchBusy(uint32_t ms = 3000)
+{
+    int last = digitalRead(EPD_BUSY_PIN);
+    Serial.printf("[BUSY] start=%d\n", last);
+
+    uint32_t t0 = millis();
+    while (millis() - t0 < ms)
+    {
+        int v = digitalRead(EPD_BUSY_PIN);
+        if (v != last)
+        {
+            Serial.printf("[BUSY] %d -> %d at %lu ms\n", last, v, (unsigned long)(millis() - t0));
+            last = v;
+        }
+        delay(1);
+    }
+}
+
+static void readBusy(const char *tag)
+{
+    Serial.printf("[%s] BUSY=%d\n", tag, digitalRead(EPD_BUSY_PIN));
+}
+
+static void pulseReset()
+{
+    pinMode(EPD_RST_PIN, OUTPUT);
+    digitalWrite(EPD_RST_PIN, HIGH);
+    delay(20);
+    Serial.println("[RST] pulse");
+    digitalWrite(EPD_RST_PIN, LOW);
+    delay(20);
+    digitalWrite(EPD_RST_PIN, HIGH);
+}
+
+void setup()
+{
+    //   Serial.begin(115200);
+    //   delay(800);
+    //   Serial.println("\n=== BUSY pin test ===");
+
+    //   // BUSY 很容易浮空，建议先用上拉
+    //   pinMode(EPD_BUSY_PIN, INPUT_PULLUP);
+
+    //   // 先观察一段
+    //   watchBusy(2000);
+
+    //   // 如果接了 RST，试着复位一下，看 BUSY 有没有反应
+    //   pulseReset();
+    //   watchBusy(5000);
+
+    //   Serial.println("=== done ===");
+
+    Serial.begin(115200);
+    delay(800);
+    Serial.printf("BUSY pin=%d RST pin=%d\n", EPD_BUSY_PIN, EPD_RST_PIN);
+
+    pinMode(EPD_BUSY_PIN, INPUT_PULLUP);
+    readBusy("PULLUP");
+
+    pinMode(EPD_BUSY_PIN, INPUT_PULLDOWN);
+    readBusy("PULLDOWN");
+
+    pinMode(EPD_BUSY_PIN, INPUT);
+    delay(5);
+    readBusy("FLOAT");
+
+    // reset pulse
+    pinMode(EPD_RST_PIN, OUTPUT);
+    digitalWrite(EPD_RST_PIN, HIGH);
+    delay(20);
+    digitalWrite(EPD_RST_PIN, LOW);
+    delay(20);
+    digitalWrite(EPD_RST_PIN, HIGH);
+    delay(20);
+
+    pinMode(EPD_BUSY_PIN, INPUT_PULLUP);
+    readBusy("AFTER_RST_PULLUP");
+    pinMode(EPD_BUSY_PIN, INPUT_PULLDOWN);
+    readBusy("AFTER_RST_PULLDOWN");
+}
+
+void loop() {}
+

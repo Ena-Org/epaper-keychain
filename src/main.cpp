@@ -1,33 +1,34 @@
 #include <Arduino.h>
 #include "led.hpp"
-// #include "rgb.hpp"
 #include "touch.hpp"
-// #include "touch_rgb/touch_rgb.hpp"
 #include "epaper.hpp"
 
 static Led led;
-// static Rgb rgb;
 static Touch touch;
-// static TouchRGBFeature touchRgbFeature;
+
 void setup()
 {
-    Serial.begin(115200);
-    delay(2000);
-    led.init();
-    // rgb.init();
-    touch.init();
-    // touchRgbFeature.init();
+    // Serial.begin(115200);
+    // delay(2000);
+    // led.init();
+    // touch.init();
+    // EPaper::init();
+    // // Run a simple black/white diagnostic first; if this fails, SPI wiring/pins are wrong
+    // EPaper::showBlackWhiteTest();
+    // // Then try the accumulating test once we know refresh works
+    // EPaper::showAccumulatingTest(10, 500);
 
+    Serial.println(">>> setup: before led/touch init");
+    led.init();
+    touch.init();
+    Serial.println(">>> setup: before EPaper::init");
     EPaper::init();
-    // EPaper::showHello();
-    EPaper::showAccumulatingTest();
-    // EPaper::showPowerAnimation(5, 800);
+    Serial.println(">>> setup: after EPaper::init, before showBlackWhiteTest");
+    EPaper::showBlackWhiteTest();
+    Serial.println(">>> setup: after showBlackWhiteTest");
 }
 
 void loop()
 {
-    // led.on();
-    // rgb.tick();
-    // touch.begin();
-    // touchRgbFeature.begin();s
+    led.loop();
 }

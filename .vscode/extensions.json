@@ -4,6 +4,7 @@
     "recommendations": [
         "ms-azuretools.vscode-containers",
         "ms-python.python",
+        "ms-vscode.cpptools-extension-pack",
         "ms-vscode.makefile-tools",
         "platformio.platformio-ide"
     ],
