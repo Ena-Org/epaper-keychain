@@ -7,8 +7,9 @@
 // Waveshare 2.9" e-Paper Module (SKU:12563), black & white, 296x128
 // Try the generic 2.9" b/w driver first; if the screen仍无任何反应，可改为 GxEPD2_290_T5 再测试
 // using EPaperDriver = GxEPD2_290;
+using EPaperDriver = GxEPD2_290_T5;
 // using EPaperDriver = GxEPD2_290_T94_V2;
-using EPaperDriver = GxEPD2_290_BS;
+// using EPaperDriver = GxEPD2_290_BS;
 
 extern GxEPD2_BW<EPaperDriver, EPaperDriver::HEIGHT> display;
 

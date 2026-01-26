@@ -8,8 +8,8 @@ static Touch touch;
 
 void setup()
 {
-    // Serial.begin(115200);
-    // delay(2000);
+    Serial.begin(115200);
+    delay(2000); // 给串口和电源稳态一点时间，方便观察日志
     // led.init();
     // touch.init();
     // EPaper::init();
@@ -20,6 +20,7 @@ void setup()
 
     Serial.println(">>> setup: before led/touch init");
     led.init();
+    led.on();
     touch.init();
     Serial.println(">>> setup: before EPaper::init");
     EPaper::init();
@@ -30,5 +31,5 @@ void setup()
 
 void loop()
 {
-    led.loop();
+    // led.loop();
 }

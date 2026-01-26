@@ -7,12 +7,15 @@ void EPaper::init()
 {
     pinMode(EPD_PWR_PIN, OUTPUT);
     digitalWrite(EPD_PWR_PIN, HIGH);
-    delay(10);
+    delay(200); // 给屏供电稳定时间，部分板卡需要更长上电延迟
+
+    Serial.printf("EPD pins -> PWR:%d CS:%d DC:%d RST:%d BUSY:%d SCK:%d MOSI:%d\n",
+                  EPD_PWR_PIN, EPD_CS_PIN, EPD_DC_PIN, EPD_RST_PIN, EPD_BUSY_PIN, EPD_SCK_PIN, EPD_MOSI_PIN);
 
     // Explicitly bind SPI to the wired pins on the XIAonO ESP32S3; the default pins do not match our PCB wiring
     SPI.begin(EPD_SCK_PIN, -1, EPD_MOSI_PIN, EPD_CS_PIN);
-    // SPI.begin(EPD_SCK_PIN, -1, d, EPD_CS_PIN);
     display.init(115200, true, 2, false);
+    Serial.println(">>> EPaper init done (power on + SPI begin + display.init)");
     display.setRotation(1);
     display.setFullWindow();
 }
