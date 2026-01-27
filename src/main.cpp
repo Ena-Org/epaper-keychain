@@ -9,18 +9,10 @@ static Touch touch;
 void setup()
 {
     Serial.begin(115200);
-    delay(2000); // 给串口和电源稳态一点时间，方便观察日志
-    // led.init();
-    // touch.init();
-    // EPaper::init();
-    // // Run a simple black/white diagnostic first; if this fails, SPI wiring/pins are wrong
-    // EPaper::showBlackWhiteTest();
-    // // Then try the accumulating test once we know refresh works
-    // EPaper::showAccumulatingTest(10, 500);
+    delay(2000); 
 
     Serial.println(">>> setup: before led/touch init");
     led.init();
-    led.on();
     touch.init();
     Serial.println(">>> setup: before EPaper::init");
     EPaper::init();
@@ -31,5 +23,5 @@ void setup()
 
 void loop()
 {
-    // led.loop();
+    led.loop();
 }
