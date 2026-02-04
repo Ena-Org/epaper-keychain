@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "protoboard.pretty")(type "KiCad")(uri "/home/wb_yu_bian/workspace/ena/epaper-keychain/protoboard-layouts")(options "")(descr "protoboard.pretty"))
+)
