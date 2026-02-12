@@ -111,7 +111,7 @@ void EPaper::showBlackWhiteTest()
         display.setTextColor(GxEPD_BLACK);
         display.setTextSize(2);
         display.setCursor(20, 70);
-        display.print("E-paper OK2");
+        display.print("E-paper OK");
     } while (display.nextPage());
 }
 

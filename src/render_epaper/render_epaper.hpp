@@ -3,5 +3,6 @@
 
 class RenderEPaper
 {
+public:
   static void render(const char* text);
 };

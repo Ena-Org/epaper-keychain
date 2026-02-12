@@ -10,6 +10,16 @@ public:
   void setHostname(const char *hostname);
   void setAutoReconnect(bool enable);
   void setPowerSave(bool enable);
+  void setReconnectIntervalMs(uint32_t intervalMs);
+
+  // 一站式初始化并尝试连接，便于在主程序里少写样板
+  bool init(const char *ssid, const char *password,
+            const char *hostname = "epaper-keychain",
+            bool autoReconnect = true,
+            bool powerSave = false,
+            uint32_t reconnectIntervalMs = 3000,
+            uint32_t timeoutMs = 15000,
+            uint8_t retry = 2);
 
   void begin(const char *ssid, const char *password);
 

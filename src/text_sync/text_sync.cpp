@@ -22,6 +22,13 @@ void TextSync::setAcceptJson(bool enable)
   _acceptJson = enable;
 }
 
+void TextSync::setPostMode(bool enable, const String &payload, const String &contentType)
+{
+  _usePost = enable;
+  _postPayload = payload;
+  _postContentType = contentType;
+}
+
 bool TextSync::poll(String &outText)
 {
   return _fetch(outText, false);
@@ -67,7 +74,16 @@ bool TextSync::_fetch(String &outText, bool force)
     headers[headerCount++] = {"Authorization", auth.c_str()};
   }
 
-  HttpResponse r = _http.get(_url, headers, headerCount);
+  HttpResponse r;
+  if (_usePost)
+  {
+    const char *ctype = _postContentType.length() ? _postContentType.c_str() : nullptr;
+    r = _http.request("POST", _url, _postPayload, ctype, headers, headerCount);
+  }
+  else
+  {
+    r = _http.get(_url, headers, headerCount);
+  }
 
   if (r.status != 200)
   {

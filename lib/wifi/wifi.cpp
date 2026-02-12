@@ -22,6 +22,38 @@ void WifiManager::setPowerSave(bool enable)
   _powerSave = enable;
 }
 
+void WifiManager::setReconnectIntervalMs(uint32_t intervalMs)
+{
+  if (intervalMs > 0)
+  {
+    _reconnectIntervalMs = intervalMs;
+  }
+}
+
+bool WifiManager::init(const char *ssid, const char *password,
+                       const char *hostname,
+                       bool autoReconnect,
+                       bool powerSave,
+                       uint32_t reconnectIntervalMs,
+                       uint32_t timeoutMs,
+                       uint8_t retry)
+{
+  setHostname(hostname);
+  setAutoReconnect(autoReconnect);
+  setPowerSave(powerSave);
+  setReconnectIntervalMs(reconnectIntervalMs);
+
+  begin(ssid, password);
+
+  if (!connect(timeoutMs, retry))
+  {
+    Serial.println("[WiFi] Initial connect failed.");
+    return false;
+  }
+
+  return true;
+}
+
 void WifiManager::begin(const char *ssid, const char *password)
 {
   _ssid = ssid;

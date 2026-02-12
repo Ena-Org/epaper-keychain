@@ -13,6 +13,8 @@ public:
   void setIntervalMs(uint32_t ms);
   void setAuthBearer(const String &token); // 可选：Bearer token
   void setAcceptJson(bool enable);         // 可选：服务端返回 json 时开
+  // 部分接口要求 POST（可带 body 与 Content-Type），默认 GET
+  void setPostMode(bool enable, const String &payload = "", const String &contentType = "application/json");
 
   // loop里调用：如果拿到“新文本”，返回 true，并把文本塞到 outText
   bool poll(String &outText);
@@ -29,6 +31,10 @@ private:
 
   String _bearerToken;
   bool _acceptJson = false;
+
+  bool _usePost = false;
+  String _postPayload;
+  String _postContentType;
 
   String _lastText;
 
