@@ -8,5 +8,12 @@
   // Override any global/local proxy (e.g., 127.0.0.1:7897) for the remote container
   "http.proxy": "",
   "http.proxySupport": "off",
-  "github.copilot.proxy": ""
+  "github.copilot.proxy": "",
+  "cSpell.words": [
+    "LOGD",
+    "LOGI",
+    "LOGV",
+    "LOGW",
+    "RSSI"
+  ]
 }
