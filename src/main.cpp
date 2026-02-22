@@ -9,16 +9,25 @@
 #include "logger.hpp"
 #include "text_sync/text_sync.hpp"
 #include "render_epaper/render_epaper.hpp"
+#include "transport_usb.hpp"
+#include "uploader/uploader.hpp"
+#include "cmd_router/cmd_router.hpp"
 
 static Led led;
 static Touch touch;
 static Wifi wifi;
+static UsbCdcTransport usbTransport;
+static Uploader::UploadSession uploadSession;
+static CmdRouter cmdRouter;
 static constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;
 
 void setup()
 {
     Serial.begin(115200);
     delay(2000);
+
+    usbTransport.begin(115200);
+    cmdRouter.begin();
 
     Logger::LoggerConfig logCfg;
     logCfg.level = ProjectLog::kLevel;
@@ -46,5 +55,6 @@ void setup()
 
 void loop()
 {
+    cmdRouter.loop(usbTransport, uploadSession);
     delay(10);
 }

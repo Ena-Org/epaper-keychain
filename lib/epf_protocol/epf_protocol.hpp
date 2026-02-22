@@ -132,7 +132,8 @@ public:
    */
   struct EncodeOptions
   {
-    bool include_magic = true;
+    bool include_magic;
+    EncodeOptions() : include_magic(true) {}
   };
 
   /**
@@ -186,7 +187,7 @@ public:
       uint16_t len,
       uint8_t *out,
       size_t cap,
-      EncodeOptions opt = {});
+      EncodeOptions opt);
 
   class FrameParser
   {

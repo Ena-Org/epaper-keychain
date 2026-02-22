@@ -5,7 +5,6 @@
 
 namespace
 {
-  struct SessionState
   /**
    * @brief 上传会话的内部状态结构体
    * 
@@ -24,7 +23,14 @@ namespace
    * @member parser 帧解析器,缓冲区大小为4096字节,用于解析接收到的数据帧
    * @member writer 文件写入器,负责将接收到的数据写入存储设备
    */
+  struct SessionState
   {
+    SessionState() = default;
+    SessionState(const SessionState &) = delete;
+    SessionState &operator=(const SessionState &) = delete;
+    SessionState(SessionState &&) = delete;
+    SessionState &operator=(SessionState &&) = delete;
+
     const Uploader::UploadSession *owner = nullptr;
     bool active = false;
     bool binaryMode = false;
@@ -53,7 +59,7 @@ namespace
    * 此全局变量在多线程环境下使用时需谨慎，
    * 建议使用互斥锁或其他同步原语保护并发访问。
    */
-  std::vector<SessionState> g_sessions;
+  std::vector<SessionState *> g_sessions;
 
   /**
    * @brief 获取或创建指定上传会话的状态对象
@@ -71,14 +77,14 @@ namespace
   {
     for (auto &s : g_sessions)
     {
-      if (s.owner == owner)
+      if (s->owner == owner)
       {
-        return s;
+        return *s;
       }
     }
 
-    g_sessions.push_back(SessionState{});
-    SessionState &created = g_sessions.back();
+    g_sessions.push_back(new SessionState());
+    SessionState &created = *g_sessions.back();
     created.owner = owner;
     return created;
   }
@@ -98,9 +104,9 @@ namespace
   {
     for (const auto &s : g_sessions)
     {
-      if (s.owner == owner)
+      if (s->owner == owner)
       {
-        return &s;
+        return s;
       }
     }
     return nullptr;
@@ -132,7 +138,7 @@ namespace
                  uint16_t len = 0)
   {
     uint8_t out[sizeof(EpfProtocol::FrameHeader) + 1024 + sizeof(uint32_t)];
-    const size_t n = EpfProtocol::encodeFrame(type, session, offset, payload, len, out, sizeof(out));
+    const size_t n = EpfProtocol::encodeFrame(type, session, offset, payload, len, out, sizeof(out), EpfProtocol::EncodeOptions{});
     if (n > 0)
     {
       io.write(out, n);

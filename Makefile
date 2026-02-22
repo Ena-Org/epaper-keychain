@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: install run upload clean serial-perms
+.PHONY: install run upload clean serial-perms webserial
 
 PYTHON ?= python3
 VENV_DIR := .pio/venv
@@ -8,6 +8,8 @@ VENV_BIN := $(VENV_DIR)/bin
 PIP := $(VENV_BIN)/pip
 PLATFORMIO := $(VENV_BIN)/platformio
 PORT ?= /dev/ttyACM0
+WEB_HOST ?= 127.0.0.1
+WEB_PORT ?= 8080
 
 $(VENV_DIR):
 	@echo "Checking pip availability..."
@@ -43,3 +45,7 @@ upload: $(VENV_DIR) serial-perms
 
 clean:
 	rm -rf $(VENV_DIR)
+
+webserial:
+	@echo "Starting WebSerial page at http://$(WEB_HOST):$(WEB_PORT)"
+	@$(PYTHON) -m http.server $(WEB_PORT) --bind $(WEB_HOST) --directory tools/webserial
