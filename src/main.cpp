@@ -51,6 +51,8 @@ void setup()
         LOGE("MAIN", "wifi connect failed, reason=%d", wifi.lastReason());
     else
         LOGI("MAIN", "wifi connected, ip=%s, rssi=%d", wifi.ipString().c_str(), wifi.rssi());
+
+    usbTransport.writeLine("OK READY");
 }
 
 void loop()
