@@ -2,6 +2,7 @@
     // See http://go.microsoft.com/fwlink/?LinkId=827846
     // for the documentation about the extensions.json format
     "recommendations": [
+        "adpyke.codesnap",
         "gruntfuggly.todo-tree",
         "ms-azuretools.vscode-containers",
         "ms-vscode.cpptools-extension-pack",
