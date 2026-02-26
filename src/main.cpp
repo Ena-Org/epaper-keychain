@@ -10,14 +10,14 @@
 #include "text_sync/text_sync.hpp"
 #include "render_epaper/render_epaper.hpp"
 
-#include "uploader/uploader.hpp"
+// #include "uploader/uploader.hpp"
 // #include "cmd_router/cmd_router.hpp"
 
 static Led led;
 static Touch touch;
 static Wifi wifi;
 
-static Uploader::UploadSession uploadSession;
+// static Uploader::UploadSession uploadSession;
 // static CmdRouter cmdRouter;
 static constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;
 
