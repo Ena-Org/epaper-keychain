@@ -1,25 +1,25 @@
 #include <Arduino.h>
-#include "led.hpp"
-#include "touch.hpp"
-#include "epaper.hpp"
-#include "wifi.hpp"
-#include "wifi_config.hpp"
+// #include "led.hpp"
+// #include "touch.hpp"
+// #include "epaper.hpp"
+// #include "wifi.hpp"
+// #include "wifi_config.hpp"
 #include "logger_config.hpp"
-#include "http.hpp"
+// #include "http.hpp"
 #include "logger.hpp"
-#include "text_sync/text_sync.hpp"
-#include "render_epaper/render_epaper.hpp"
+// #include "text_sync/text_sync.hpp"
+// #include "render_epaper/render_epaper.hpp"
 
 // #include "uploader/uploader.hpp"
 // #include "cmd_router/cmd_router.hpp"
 
-static Led led;
-static Touch touch;
-static Wifi wifi;
+// static Led led;
+// static Touch touch;
+// static Wifi wifi;
 
 // static Uploader::UploadSession uploadSession;
 // static CmdRouter cmdRouter;
-static constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;
+// static constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;
 
 void setup()
 {
@@ -35,8 +35,6 @@ void setup()
 
     // );
     // cmdRouter.begin();
-
-    
 
     // LOGI("MAIN", "setup: before led/touch init");
     // led.init();
@@ -56,10 +54,6 @@ void setup()
     //     LOGE("MAIN", "wifi connect failed, reason=%d", wifi.lastReason());
     // else
     //     LOGI("MAIN", "wifi connected, ip=%s, rssi=%d", wifi.ipString().c_str(), wifi.rssi());
-
-
-
-    
 }
 
 void loop()
