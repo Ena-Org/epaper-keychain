@@ -3,10 +3,12 @@
 #include <cctype>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 
 namespace
 {
 	constexpr size_t kLogMsgBufferSize = 256;
+	constexpr size_t kLogLineBufferSize = 384;
 
 	uint32_t default_now_ms()
 	{
@@ -15,6 +17,10 @@ namespace
 
 	Logger::LoggerConfig g_config;
 	uint32_t (*g_now_ms)() = default_now_ms;
+	std::vector<uint8_t> g_history{};
+	size_t g_history_head = 0;
+	size_t g_history_size = 0;
+	size_t g_history_capacity = 0;
 
 	const char *level_text(Logger::LogLevel level)
 	{
@@ -66,52 +72,101 @@ namespace
 		return static_cast<uint8_t>(level) <= static_cast<uint8_t>(g_config.level);
 	}
 
-	void print_prefix(Logger::LogLevel level, const char *tag)
+	size_t format_prefix(char *out, size_t cap, Logger::LogLevel level, const char *tag, uint32_t now)
 	{
-		Stream *out = g_config.out;
-		if (out == nullptr)
+		if (out == nullptr || cap == 0)
 		{
-			return;
+			return 0;
 		}
 
+		size_t pos = 0;
 		bool has_prefix = false;
 
 		if (g_config.show_time)
 		{
-			const uint32_t now = (g_now_ms != nullptr) ? g_now_ms() : millis();
-			out->print('[');
-			out->print(now);
-			out->print(']');
+			const int ret = snprintf(out + pos, cap - pos, "[%lu]", static_cast<unsigned long>(now));
+			if (ret > 0)
+			{
+				pos += static_cast<size_t>(ret);
+			}
 			has_prefix = true;
 		}
 
 		if (g_config.show_level)
 		{
-			if (has_prefix)
+			const int ret = snprintf(out + pos, cap - pos, "%s[%s]", has_prefix ? " " : "", level_text(level));
+			if (ret > 0)
 			{
-				out->print(' ');
+				pos += static_cast<size_t>(ret);
 			}
-			out->print('[');
-			out->print(level_text(level));
-			out->print(']');
 			has_prefix = true;
 		}
 
 		if (g_config.show_tag && tag != nullptr && tag[0] != '\0')
 		{
-			if (has_prefix)
+			const int ret = snprintf(out + pos, cap - pos, "%s[%s]", has_prefix ? " " : "", tag);
+			if (ret > 0)
 			{
-				out->print(' ');
+				pos += static_cast<size_t>(ret);
 			}
-			out->print('[');
-			out->print(tag);
-			out->print(']');
 			has_prefix = true;
 		}
 
 		if (has_prefix)
 		{
-			out->print(' ');
+			const int ret = snprintf(out + pos, cap - pos, " ");
+			if (ret > 0)
+			{
+				pos += static_cast<size_t>(ret);
+			}
+		}
+
+		if (pos >= cap)
+		{
+			pos = cap - 1;
+		}
+		out[pos] = '\0';
+		return pos;
+	}
+
+	void history_reset(size_t capacity)
+	{
+		g_history_capacity = capacity;
+		g_history_head = 0;
+		g_history_size = 0;
+		g_history.clear();
+		if (g_history_capacity > 0)
+		{
+			g_history.resize(g_history_capacity);
+		}
+	}
+
+	void history_append(const uint8_t *data, size_t len)
+	{
+		if (g_history_capacity == 0 || data == nullptr || len == 0)
+		{
+			return;
+		}
+
+		if (len > g_history_capacity)
+		{
+			data += (len - g_history_capacity);
+			len = g_history_capacity;
+		}
+
+		for (size_t i = 0; i < len; ++i)
+		{
+			if (g_history_size < g_history_capacity)
+			{
+				const size_t idx = (g_history_head + g_history_size) % g_history_capacity;
+				g_history[idx] = data[i];
+				++g_history_size;
+			}
+			else
+			{
+				g_history[g_history_head] = data[i];
+				g_history_head = (g_history_head + 1) % g_history_capacity;
+			}
 		}
 	}
 }
@@ -127,6 +182,7 @@ void Logger::init(const LoggerConfig &cfg)
 	{
 		g_now_ms = default_now_ms;
 	}
+	set_history_capacity(g_config.history_bytes);
 }
 
 void Logger::set_level(LogLevel level)
@@ -160,12 +216,19 @@ void Logger::vlog(LogLevel level, const char *tag, const char *fmt, va_list ap)
 		return;
 	}
 
+	const uint32_t now = (g_now_ms != nullptr) ? g_now_ms() : millis();
+
 	if (g_config.color)
 	{
 		out->print(level_color(level));
 	}
 
-	print_prefix(level, tag);
+	char prefix[kLogLineBufferSize];
+	const size_t prefix_len = format_prefix(prefix, sizeof(prefix), level, tag, now);
+	if (prefix_len > 0)
+	{
+		out->write(reinterpret_cast<const uint8_t *>(prefix), prefix_len);
+	}
 
 	char message[kLogMsgBufferSize];
 	const int n = vsnprintf(message, sizeof(message), fmt, ap);
@@ -189,6 +252,47 @@ void Logger::vlog(LogLevel level, const char *tag, const char *fmt, va_list ap)
 	}
 
 	out->print("\r\n");
+
+	char line[kLogLineBufferSize];
+	size_t line_pos = 0;
+	if (prefix_len > 0)
+	{
+		const size_t copy = (prefix_len < sizeof(line) - 1) ? prefix_len : (sizeof(line) - 1);
+		std::memcpy(line + line_pos, prefix, copy);
+		line_pos += copy;
+	}
+	if (n < 0)
+	{
+		const char err_text[] = "<format-error>";
+		const size_t copy = (sizeof(err_text) - 1 < sizeof(line) - 1 - line_pos)
+		                          ? (sizeof(err_text) - 1)
+		                          : (sizeof(line) - 1 - line_pos);
+		std::memcpy(line + line_pos, err_text, copy);
+		line_pos += copy;
+	}
+	else
+	{
+		const size_t msg_len = std::strlen(message);
+		const size_t copy = (msg_len < sizeof(line) - 1 - line_pos) ? msg_len : (sizeof(line) - 1 - line_pos);
+		std::memcpy(line + line_pos, message, copy);
+		line_pos += copy;
+		if (static_cast<size_t>(n) >= sizeof(message) && line_pos + 3 < sizeof(line))
+		{
+			line[line_pos++] = '.';
+			line[line_pos++] = '.';
+			line[line_pos++] = '.';
+		}
+	}
+
+	if (line_pos >= sizeof(line))
+	{
+		line_pos = sizeof(line) - 1;
+	}
+	line[line_pos] = '\0';
+
+	history_append(reinterpret_cast<const uint8_t *>(line), line_pos);
+	const uint8_t newline[] = {'\r', '\n'};
+	history_append(newline, sizeof(newline));
 }
 
 void Logger::hexdump(LogLevel level, const char *tag, const void *data, size_t len, size_t bytes_per_line)
@@ -291,4 +395,56 @@ void Logger::flush()
 	{
 		g_config.out->flush();
 	}
+}
+
+void Logger::set_history_capacity(size_t bytes)
+{
+	history_reset(bytes);
+}
+
+size_t Logger::history_capacity()
+{
+	return g_history_capacity;
+}
+
+size_t Logger::history_size()
+{
+	return g_history_size;
+}
+
+void Logger::clear_history()
+{
+	history_reset(g_history_capacity);
+}
+
+size_t Logger::dump_history(Stream &out)
+{
+	if (g_history_capacity == 0 || g_history_size == 0)
+	{
+		return 0;
+	}
+
+	size_t written = 0;
+	for (size_t i = 0; i < g_history_size; ++i)
+	{
+		const size_t idx = (g_history_head + i) % g_history_capacity;
+		written += out.write(&g_history[idx], 1);
+	}
+	return written;
+}
+
+size_t Logger::copy_history(uint8_t *out, size_t maxLen)
+{
+	if (out == nullptr || maxLen == 0 || g_history_capacity == 0 || g_history_size == 0)
+	{
+		return 0;
+	}
+
+	const size_t to_copy = (g_history_size < maxLen) ? g_history_size : maxLen;
+	for (size_t i = 0; i < to_copy; ++i)
+	{
+		const size_t idx = (g_history_head + i) % g_history_capacity;
+		out[i] = g_history[idx];
+	}
+	return to_copy;
 }

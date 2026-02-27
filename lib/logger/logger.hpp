@@ -61,6 +61,7 @@ public:
     bool show_level = true;
     bool show_tag = true;
     bool color = false;
+    size_t history_bytes = 0;
   };
 
   /**
@@ -160,6 +161,35 @@ public:
    * @warning 若底层输出设备不可用，刷新行为可能失败（具体取决于实现）。
    */
   static void flush();
+
+  /**
+   * @brief 配置日志历史缓存容量（字节）
+   * @param bytes 历史缓存最大容量，0表示关闭历史
+   */
+  static void set_history_capacity(size_t bytes);
+
+  /// @brief 获取历史缓存容量（字节）
+  static size_t history_capacity();
+
+  /// @brief 获取当前已保存的历史字节数
+  static size_t history_size();
+
+  /// @brief 清空历史缓存
+  static void clear_history();
+
+  /**
+   * @brief 将历史日志输出到指定Stream
+   * @return 输出的字节数
+   */
+  static size_t dump_history(Stream &out);
+
+  /**
+   * @brief 复制历史日志到缓冲区
+   * @param out 输出缓冲区
+   * @param maxLen 输出缓冲区大小
+   * @return 实际复制的字节数
+   */
+  static size_t copy_history(uint8_t *out, size_t maxLen);
 };
 
 /**
