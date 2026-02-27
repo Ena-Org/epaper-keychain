@@ -49,6 +49,12 @@ void Cmd::init(Transport &transport, Codec &codec, Router &router)
   transport_ = &transport;
   codec_ = &codec;
   router_ = &router;
+
+  Transport::Config transportCfg;
+  transport_->init(transportCfg);
+  transport_->connect();
+
+  registerHandlers();
 }
 
 /**

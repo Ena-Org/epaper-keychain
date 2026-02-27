@@ -16,6 +16,8 @@ namespace
    */
 	constexpr const char *TAG = "TRANSPORT";
 
+	constexpr size_t kSerialRxChunkSize = 256;
+
   /**
    * @brief 将传输事件枚举值转换为对应的文本描述
    * 
@@ -184,6 +186,20 @@ void Transport::disconnect()
  */
 void Transport::loop()
 {
+	uint8_t rxChunk[kSerialRxChunkSize];
+	while (Serial.available() > 0)
+	{
+		const size_t availableBytes = static_cast<size_t>(Serial.available());
+		const size_t toRead = std::min(availableBytes, kSerialRxChunkSize);
+		const size_t readBytes = Serial.readBytes(reinterpret_cast<char *>(rxChunk), toRead);
+		if (readBytes == 0)
+		{
+			break;
+		}
+
+		onBytesReceived(rxChunk, readBytes);
+	}
+
 	heartbeatLoop_();
 	reconnectLoop_();
 }
@@ -218,7 +234,33 @@ void Transport::send(const uint8_t *data, size_t len)
 		return;
 	}
 
-	LOGV(TAG, "send placeholder: %u bytes", static_cast<unsigned>(len));
+	size_t totalWritten = 0;
+	uint8_t idleRounds = 0;
+	while (totalWritten < len)
+	{
+		const size_t written = Serial.write(data + totalWritten, len - totalWritten);
+		if (written == 0)
+		{
+			++idleRounds;
+			if (idleRounds >= 5)
+			{
+				break;
+			}
+			delay(1);
+			continue;
+		}
+
+		totalWritten += written;
+		idleRounds = 0;
+	}
+
+	if (totalWritten != len)
+	{
+		LOGW(TAG, "send partial: %u/%u bytes", static_cast<unsigned>(totalWritten), static_cast<unsigned>(len));
+		return;
+	}
+
+	LOGV(TAG, "send ok: %u bytes", static_cast<unsigned>(len));
 }
 
 /**
