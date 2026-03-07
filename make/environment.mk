@@ -2,9 +2,9 @@
 
 help::
 	@echo "  make init-all          初始化完整本地开发环境"
-	@echo "  make clean-all         删除 Python 虚拟环境和项目本地 OpenCode"
+	@echo "  make clean-all         清理 PlatformIO 构建产物并删除本地开发环境"
 
-init-all: python\:install opencode\:install
+init-all: deps\:check platformio\:export python\:install platformio\:install opencode\:install
 	@echo "Full local environment is ready."
 
-clean-all: python\:clean opencode\:clean
+clean-all: platformio\:clean python\:clean opencode\:clean
