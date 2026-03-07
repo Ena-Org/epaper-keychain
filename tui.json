@@ -1,0 +1,7 @@
+{
+  "$schema": "./.vscode/schemas/opencode-tui.schema.json",
+  "theme": "system",
+  "keybinds": {
+    "command_list": "<leader>p"
+  }
+}

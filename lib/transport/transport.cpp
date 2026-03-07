@@ -100,6 +100,38 @@ void Transport::setConfig(const Config &cfg)
 }
 
 /**
+ * @brief 运行时启用或禁用心跳
+ *
+ * @param enabled true 启用；false 禁用
+ */
+void Transport::setHeartbeatEnabled(bool enabled)
+{
+	if (config_.heartbeatEnabled == enabled)
+	{
+		return;
+	}
+
+	config_.heartbeatEnabled = enabled;
+	if (enabled)
+	{
+		resetHeartbeatState_();
+		return;
+	}
+
+	awaitingHeartbeatAck_ = false;
+	heartbeatAckMatchPos_ = 0;
+}
+
+/**
+ * @brief 获取当前是否启用心跳
+ * @return bool true 启用，false 禁用
+ */
+bool Transport::isHeartbeatEnabled() const
+{
+	return config_.heartbeatEnabled;
+}
+
+/**
  * @brief 连接到传输层
  * @details 建立传输连接。如果已经处于连接状态，则直接返回true。
  *          否则将状态设置为连接中，然后设置为已连接，重置心跳状态，

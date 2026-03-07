@@ -22,6 +22,13 @@ namespace CmdHandlers
   void registerInfoHandlers(Router &router);
 
   /**
+   * @brief 注册浏览器会话控制处理器
+   *
+   * @param router 路由器引用
+   */
+  void registerSessionHandlers(Router &router);
+
+  /**
    * @brief 注册日志处理器到路由器
    * 
    * 将日志相关的命令处理器注册到指定的路由器中，使路由器能够
@@ -34,4 +41,11 @@ namespace CmdHandlers
    * @see Router, Codec
    */
   void registerLogHandlers(Router &router, Codec *codec);
+
+  /**
+   * @brief 注册图像上传相关处理器
+   *
+   * @param router 路由器引用
+   */
+  void registerImageHandlers(Router &router);
 }

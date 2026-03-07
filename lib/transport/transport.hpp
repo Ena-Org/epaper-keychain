@@ -110,6 +110,20 @@ public:
   void setConfig(const Config &cfg);
 
   /**
+   * @brief 运行时启用或禁用心跳机制
+   *
+   * @param enabled true 启用心跳；false 禁用心跳
+   */
+  void setHeartbeatEnabled(bool enabled);
+
+  /**
+   * @brief 获取当前心跳是否启用
+   * @return true 已启用
+   * @return false 未启用
+   */
+  bool isHeartbeatEnabled() const;
+
+  /**
    * @brief 连接到设备或服务
    * 
    * 建立与远程设备或服务的连接。此函数会初始化必要的

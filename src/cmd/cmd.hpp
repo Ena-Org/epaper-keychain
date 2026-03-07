@@ -5,6 +5,8 @@
 #include "protocol_packet.hpp"
 #include "router.hpp"
 #include "codec.hpp"
+#include "image.hpp"
+#include "storage.hpp"
 #include "transport.hpp"
 
 class Cmd : public Router::Context
@@ -110,7 +112,63 @@ public:
    */
   bool publish(uint16_t eventId, const uint8_t *payload, size_t len) override;
 
+  /**
+   * @brief 设置浏览器会话连接状态
+   *
+   * @param connected true 表示浏览器已连接，false 表示浏览器已断开
+   */
+  void setBrowserConnected(bool connected);
+
+  /**
+   * @brief 获取浏览器会话连接状态
+   * @return true 浏览器已连接
+   * @return false 浏览器未连接
+   */
+  bool isBrowserConnected() const;
+
+  /**
+   * @brief 开始图像上传会话
+   */
+  Image::Result imageBegin(const Image::UploadMeta &meta);
+
+  /**
+   * @brief 追加图像分片
+   */
+  Image::Result imageAppendChunk(uint32_t chunk_offset, const uint8_t *data, size_t len);
+
+  /**
+   * @brief 结束图像上传会话
+   */
+  Image::Result imageEnd();
+
+  /**
+   * @brief 应用最新图像
+   */
+  Image::Result imageApply();
+
+  /**
+   * @brief 中止图像上传会话
+   */
+  Image::Result imageAbort();
+
 private:
+  class ImageStorePortAdapter : public Image::IStorePort
+  {
+  public:
+    explicit ImageStorePortAdapter(Storage::IImageStorage *storage);
+
+    Image::Result begin_write(const Image::UploadMeta &meta) override;
+    Image::Result write_chunk(uint32_t offset, const uint8_t *data, size_t len) override;
+    Image::Result commit() override;
+    Image::Result abort_write() override;
+
+  private:
+    static Image::ErrorCode toImageCode_(Storage::ErrorCode code);
+
+  private:
+    Storage::IImageStorage *storage_ = nullptr;
+  };
+
   /// @brief 传输层指针
   /// @details 用于管理与设备的通信连接，负责数据的发送和接收
   Transport *transport_ = nullptr;
@@ -124,6 +182,12 @@ private:
    * @details 用于管理和处理命令的路由，初始状态为空指针
    */
   Router *router_ = nullptr;
+
+  bool browser_connected_ = false;
+
+  Storage::MemoryImageStorage image_storage_;
+  ImageStorePortAdapter image_store_port_;
+  Image::Service image_service_;
 
   bool sendPacket_(const Packet &packet);
 };

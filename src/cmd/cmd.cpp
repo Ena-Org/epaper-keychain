@@ -24,6 +24,8 @@ namespace
    * @note 该常量在编译期确定，无法在运行时修改
    */
   constexpr size_t kRxChunkSize = 256;
+
+  constexpr uint32_t kImageStorageBytes = 64u * 1024u;
 }
 
 /**
@@ -32,7 +34,122 @@ namespace
  * 初始化 Cmd 对象，使用编译器生成的默认构造函数。
  * 该构造函数不执行任何显式初始化操作。
  */
-Cmd::Cmd() = default;
+Cmd::Cmd()
+    : image_storage_(kImageStorageBytes),
+      image_store_port_(&image_storage_)
+{
+}
+
+Cmd::ImageStorePortAdapter::ImageStorePortAdapter(Storage::IImageStorage *storage)
+    : storage_(storage)
+{
+}
+
+Image::ErrorCode Cmd::ImageStorePortAdapter::toImageCode_(Storage::ErrorCode code)
+{
+  switch (code)
+  {
+  case Storage::ErrorCode::Ok:
+    return Image::ErrorCode::Ok;
+  case Storage::ErrorCode::Busy:
+    return Image::ErrorCode::Busy;
+  case Storage::ErrorCode::InvalidArg:
+    return Image::ErrorCode::InvalidArg;
+  case Storage::ErrorCode::NotReady:
+    return Image::ErrorCode::BadState;
+  case Storage::ErrorCode::NoSpace:
+    return Image::ErrorCode::OutOfRange;
+  case Storage::ErrorCode::IoError:
+    return Image::ErrorCode::StorageError;
+  case Storage::ErrorCode::NotFound:
+    return Image::ErrorCode::NotFound;
+  default:
+    return Image::ErrorCode::StorageError;
+  }
+}
+
+Image::Result Cmd::ImageStorePortAdapter::begin_write(const Image::UploadMeta &meta)
+{
+  Image::Result result;
+  if (storage_ == nullptr)
+  {
+    result.code = Image::ErrorCode::StorageError;
+    return result;
+  }
+
+  Storage::ImageMeta image_meta;
+  image_meta.transfer_id = meta.transfer_id;
+  image_meta.width = meta.width;
+  image_meta.height = meta.height;
+  image_meta.total_bytes = meta.total_bytes;
+  image_meta.crc32 = meta.expected_crc32;
+
+  switch (meta.format)
+  {
+  case Image::PixelFormat::Mono1Bpp:
+    image_meta.format = Storage::PixelFormat::Mono1Bpp;
+    break;
+  case Image::PixelFormat::Gray2Bpp:
+    image_meta.format = Storage::PixelFormat::Gray2Bpp;
+    break;
+  case Image::PixelFormat::Gray4Bpp:
+    image_meta.format = Storage::PixelFormat::Gray4Bpp;
+    break;
+  default:
+    result.code = Image::ErrorCode::InvalidArg;
+    return result;
+  }
+
+  const Storage::Result store_result = storage_->begin_write(image_meta);
+  result.code = toImageCode_(store_result.code);
+  result.accepted_bytes = store_result.bytes;
+  return result;
+}
+
+Image::Result Cmd::ImageStorePortAdapter::write_chunk(uint32_t offset, const uint8_t *data, size_t len)
+{
+  Image::Result result;
+  if (storage_ == nullptr)
+  {
+    result.code = Image::ErrorCode::StorageError;
+    return result;
+  }
+
+  const Storage::Result store_result = storage_->write_chunk(offset, data, len);
+  result.code = toImageCode_(store_result.code);
+  result.accepted_bytes = store_result.bytes;
+  return result;
+}
+
+Image::Result Cmd::ImageStorePortAdapter::commit()
+{
+  Image::Result result;
+  if (storage_ == nullptr)
+  {
+    result.code = Image::ErrorCode::StorageError;
+    return result;
+  }
+
+  const Storage::Result store_result = storage_->commit();
+  result.code = toImageCode_(store_result.code);
+  result.accepted_bytes = store_result.bytes;
+  return result;
+}
+
+Image::Result Cmd::ImageStorePortAdapter::abort_write()
+{
+  Image::Result result;
+  if (storage_ == nullptr)
+  {
+    result.code = Image::ErrorCode::StorageError;
+    return result;
+  }
+
+  const Storage::Result store_result = storage_->abort_write();
+  result.code = toImageCode_(store_result.code);
+  result.accepted_bytes = store_result.bytes;
+  return result;
+}
 
 /**
  * @brief 初始化Cmd对象，设置其依赖的传输、编解码和路由器
@@ -49,10 +166,17 @@ void Cmd::init(Transport &transport, Codec &codec, Router &router)
   transport_ = &transport;
   codec_ = &codec;
   router_ = &router;
+  browser_connected_ = false;
 
   Transport::Config transportCfg;
+  transportCfg.heartbeatEnabled = false;
   transport_->init(transportCfg);
   transport_->connect();
+
+  if (!image_service_.init(&image_store_port_))
+  {
+    LOGE(TAG, "image service init failed");
+  }
 
   registerHandlers();
 }
@@ -223,6 +347,47 @@ bool Cmd::publish(uint16_t eventId, const uint8_t *payload, size_t len)
     packet.payload.assign(payload, payload + len);
   }
   return sendPacket_(packet);
+}
+
+void Cmd::setBrowserConnected(bool connected)
+{
+  browser_connected_ = connected;
+  if (transport_ == nullptr)
+  {
+    return;
+  }
+
+  transport_->setHeartbeatEnabled(connected);
+}
+
+bool Cmd::isBrowserConnected() const
+{
+  return browser_connected_;
+}
+
+Image::Result Cmd::imageBegin(const Image::UploadMeta &meta)
+{
+  return image_service_.begin(meta);
+}
+
+Image::Result Cmd::imageAppendChunk(uint32_t chunk_offset, const uint8_t *data, size_t len)
+{
+  return image_service_.append_chunk(chunk_offset, data, len);
+}
+
+Image::Result Cmd::imageEnd()
+{
+  return image_service_.end();
+}
+
+Image::Result Cmd::imageApply()
+{
+  return image_service_.apply();
+}
+
+Image::Result Cmd::imageAbort()
+{
+  return image_service_.abort();
 }
 
 /**
