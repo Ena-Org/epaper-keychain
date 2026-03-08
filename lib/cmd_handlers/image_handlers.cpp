@@ -12,6 +12,18 @@ namespace CmdHandlers
     constexpr uint16_t kErrorInvalidContext = 1;
     constexpr uint16_t kErrorInvalidPayload = 2;
 
+    /**
+     * @brief 从路由上下文中获取命令对象指针
+     * 
+     * 将给定的路由上下文引用强制转换为Cmd指针。
+     * 该函数假设Router::Context是Cmd的派生类或兼容类型。
+     * 
+     * @param ctx 路由上下文的引用
+     * @return Cmd* 指向命令对象的指针
+     * 
+     * @note 该函数使用static_cast进行类型转换，调用者需确保
+     *       上下文对象确实可以安全地转换为Cmd指针
+     */
     Cmd *getCmdContext_(Router::Context &ctx)
     {
       return static_cast<Cmd *>(&ctx);
