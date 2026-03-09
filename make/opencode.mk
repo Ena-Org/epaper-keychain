@@ -1,10 +1,10 @@
-.PHONY: help opencode\:install opencode\:run opencode\:clean
+.PHONY: opencode\:help opencode\:install opencode\:run opencode\:clean
 
 OPENCODE_DIR := .tools/opencode
 OPENCODE_BIN_DIR := $(OPENCODE_DIR)/bin
 OPENCODE_BIN := $(OPENCODE_BIN_DIR)/opencode
 
-help::
+opencode\:help::
 	@echo "  make opencode:install  安装项目本地 OpenCode"
 	@echo "  make opencode:run      启动项目本地 OpenCode"
 	@echo "  make opencode:clean    删除项目本地 OpenCode"

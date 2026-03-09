@@ -1,11 +1,11 @@
-.PHONY: help python\:install python\:clean
+.PHONY: python\:help python\:install python\:clean
 
 VENV_DIR := .pio/venv
 VENV_BIN := $(VENV_DIR)/bin
 VENV_PY := $(VENV_BIN)/python
 VENV_READY := $(VENV_DIR)/.ready
 
-help::
+python\:help::
 	@echo "  make python:install    创建 Python 虚拟环境"
 	@echo "  make python:clean      删除 Python 虚拟环境"
 

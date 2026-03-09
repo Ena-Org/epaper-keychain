@@ -1,13 +1,12 @@
-.PHONY: help deps\:check deps\:install
+.PHONY: fedora\:help fedora\:dep-check fedora\:dep-install
 
-# WSL Fedora 所需的系统依赖包列表
 FEDORA_DEPS := xdg-user-dirs
 
-help::
+fedora\:help::
 	@echo "  make deps:check        检查系统依赖是否已安装"
 	@echo "  make deps:install      安装系统依赖 (需要 sudo)"
 
-deps\:check:
+fedora\:dep-check:
 	@missing=""; \
 	for cmd in xdg-user-dir; do \
 		if ! command -v "$$cmd" >/dev/null 2>&1; then \
@@ -22,7 +21,7 @@ deps\:check:
 		echo "系统依赖检查通过"; \
 	fi
 
-deps\:install:
+fedora\:dep-install:
 	@if ! command -v dnf >/dev/null 2>&1; then \
 		echo "Error: dnf 未找到，此目标仅适用于 Fedora Linux"; \
 		exit 1; \
