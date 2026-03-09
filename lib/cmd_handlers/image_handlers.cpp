@@ -9,7 +9,14 @@ namespace CmdHandlers
   {
     using Packet = Protocol::Packet;
 
+    /// @brief 表示无效上下文的错误代码
+    /// @details 当操作在错误的或未初始化的上下文中执行时返回此错误代码
+    /// @value 1
     constexpr uint16_t kErrorInvalidContext = 1;
+
+    /// @brief 表示接收到无效负载数据的错误代码
+    /// @details 当图像处理函数收到格式不正确或数据损坏的负载时返回此错误代码
+    /// @value 2 错误代码的常量值
     constexpr uint16_t kErrorInvalidPayload = 2;
 
     /**
