@@ -16,20 +16,12 @@ namespace
 	 */
 	bool g_initialized = false;
 
-	/// @brief 全局显示模式变量
-	/// @details 用于存储电子纸屏幕的当前显示模式，默认设置为系统视图模式。
-	/// 该变量控制电子纸渲染器如何呈现内容和界面布局。
-	static EpaperRender::DisplayMode g_mode = EpaperRender::DisplayMode::SystemView;
-
 	/**
-	 * @brief 全局电子纸显示模式变量
-	 * @details 存储当前电子纸屏幕的显示模式，初始化为系统视图模式。
-	 *          用于控制电子纸显示器在不同视图模式之间的切换。
-	 * @var g_mode
-	 * @type EpaperRender::DisplayMode
-	 * @value EpaperRender::DisplayMode::SystemView 系统视图模式
+	 * @brief 全局显示模式变量
+	 * @details 用于存储电子纸屏幕的当前显示模式，默认设置为系统视图模式。
+	 *          该变量控制电子纸渲染器如何呈现内容和界面布局。
 	 */
-	EpaperRender::DisplayMode g_mode = EpaperRender::DisplayMode::SystemView;
+	static EpaperRender::DisplayMode g_mode = EpaperRender::DisplayMode::SystemView;
 
 	/**
 	 * @brief 全局日志流对象
