@@ -18,7 +18,7 @@ namespace CmdHandlers
   void registerDefaultHandlers(Router &router, Codec *codec)
   {
     registerInfoHandlers(router);
-    registerSessionHandlers(router);
+    registerBrowserHandlers(router);
     registerLogHandlers(router, codec);
     registerImageHandlers(router);
   }

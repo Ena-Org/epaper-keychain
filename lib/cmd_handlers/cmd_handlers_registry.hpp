@@ -22,11 +22,11 @@ namespace CmdHandlers
   void registerInfoHandlers(Router &router);
 
   /**
-   * @brief 注册浏览器会话控制处理器
+   * @brief 注册浏览器连接相关处理器
    *
    * @param router 路由器引用
    */
-  void registerSessionHandlers(Router &router);
+  void registerBrowserHandlers(Router &router);
 
   /**
    * @brief 注册日志处理器到路由器

@@ -155,11 +155,63 @@ private:
   class ImageStorePortAdapter : public Image::IStorePort
   {
   public:
+
+    /**
+     * @brief ImageStorePortAdapter 的构造函数
+     * 
+     * @param storage 指向 Storage::IImageStorage 接口的指针，用于执行图像存储操作
+     * 
+     * @details 该构造函数初始化 ImageStorePortAdapter 对象，并接收一个存储接口的实现指针。
+     *          通过依赖注入模式，将具体的存储行为与适配器解耦。
+     */
     explicit ImageStorePortAdapter(Storage::IImageStorage *storage);
 
+    /**
+     * @brief 开始写入图像数据
+     * 
+     * @param meta 图像上传的元数据，包含图像信息和配置参数
+     * 
+     * @return Image::Result 操作结果，表示写入操作是否成功
+     * 
+     * @note 此方法为虚函数，应由派生类实现具体的写入逻辑
+     */
     Image::Result begin_write(const Image::UploadMeta &meta) override;
+
+    /**
+     * @brief 写入数据块到指定偏移位置
+     * 
+     * @param offset 写入操作的起始偏移位置（字节单位）
+     * @param data 指向待写入数据的指针
+     * @param len 待写入数据的长度（字节单位）
+     * 
+     * @return Image::Result 写入操作的结果状态
+     */
     Image::Result write_chunk(uint32_t offset, const uint8_t *data, size_t len) override;
+
+    /**
+     * @brief 提交当前的操作或更改
+     * 
+     * 将待处理的更改应用到图像或设备中。此方法用于确认并执行
+     * 之前进行的所有操作。
+     * 
+     * @return Image::Result 操作的结果状态，表示提交是否成功
+     * @retval Image::Result::Success 提交操作成功
+     * @retval Image::Result::Error 提交操作失败
+     * 
+     * @note 此方法必须由派生类实现
+     */
     Image::Result commit() override;
+
+    /**
+     * @brief 中止写入操作
+     * 
+     * 该函数用于中止当前进行的写入操作。当需要停止向存储设备或
+     * 缓冲区写入数据时调用此函数。
+     * 
+     * @return Image::Result 返回操作结果，表示中止写入是否成功。
+     *                       成功时返回相应的成功状态码，
+     *                       失败时返回相应的错误状态码。
+     */
     Image::Result abort_write() override;
 
   private:
@@ -183,11 +235,47 @@ private:
    */
   Router *router_ = nullptr;
 
+  /// @brief 浏览器连接状态标志
+  /// @details 用于追踪浏览器是否已连接到设备
+  /// @note 当浏览器成功建立连接时设置为 true，断开连接时设置为 false
   bool browser_connected_ = false;
 
+  /**
+   * @brief 内存图像存储对象
+   * 
+   * 用于存储和管理电子纸屏幕显示的图像数据。
+   * 该成员变量负责维护图像在内存中的缓存，
+   * 支持图像的读取、写入和更新操作。
+   */
   Storage::MemoryImageStorage image_storage_;
+
+  /// @brief 图像存储端口适配器
+  /// 
+  /// 用于适配和管理图像存储功能的端口适配器。负责与图像存储服务的通信和数据交互。
   ImageStorePortAdapter image_store_port_;
+
+  /**
+   * @brief 图像服务实例
+   * 
+   * 用于处理图像相关的业务逻辑，包括图像加载、转换、显示等操作。
+   * 该服务实例负责管理应用程序中所有与图像相关的功能。
+   */
   Image::Service image_service_;
 
+  /**
+   * @brief 发送数据包
+   * 
+   * 将指定的数据包发送到目标设备。此方法为私有方法，
+   * 主要用于内部通信协议的实现。
+   * 
+   * @param packet 要发送的数据包引用，包含完整的数据和头信息
+   * 
+   * @return bool 如果数据包发送成功返回 true，否则返回 false
+   * 
+   * @note 这是一个私有方法，不应在类外直接调用
+   * @note 发送前请确保相关的通信接口已正确初始化
+   * 
+   * @see Packet
+   */
   bool sendPacket_(const Packet &packet);
 };
