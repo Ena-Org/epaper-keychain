@@ -1,0 +1,5 @@
+#include "cmd_handlers/cmd_handlers.cpp"
+#include "cmd_handlers/browser_handlers.cpp"
+#include "cmd_handlers/info_handlers.cpp"
+#include "cmd_handlers/log_handlers.cpp"
+#include "cmd_handlers/image_handlers.cpp"

@@ -5,8 +5,16 @@
   "editor.tabSize": 2,
   "files.autoSave": "afterDelay",
   "makefile.configureOnOpen": true,
-  // Override any global/local proxy (e.g., 127.0.0.1:7897) for the remote container
-  "http.proxy": "",
   "http.proxySupport": "off",
-  "github.copilot.proxy": ""
+  "github.copilot.proxy": "",
+  "cSpell.words": [
+    "Epaper",
+    "LOGD",
+    "LOGI",
+    "LOGV",
+    "LOGW",
+    "opencode",
+    "RSSI",
+    "webserial"
+  ]
 }

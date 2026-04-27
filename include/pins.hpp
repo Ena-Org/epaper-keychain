@@ -17,8 +17,3 @@
 #define EPD_SCK_PIN D8
 #define EPD_MOSI_PIN D10
 #define EPD_PWR_PIN D9
-
-#define API_URL ""
-
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
