@@ -7,9 +7,5 @@
     "--device=/dev/ttyACM0:/dev/ttyACM0",
     "--device=/dev/ttyUSB0:/dev/ttyUSB0"
   ],
-  "mounts": [
-    "source=/dev/bus/usb,target=/dev/bus/usb,type=bind",
-    "source=/dev/serial/by-id,target=/dev/serial/by-id,type=bind"
-  ],
   "postCreateCommand": "sudo groupadd -f dialout && sudo usermod -aG dialout codespace"
 }
