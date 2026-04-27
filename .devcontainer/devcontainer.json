@@ -1,34 +1,15 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
 {
-	"name": "C++",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	"features": {
-		"ghcr.io/devcontainers/features/copilot-cli:1": {},
-		"ghcr.io/devcontainers/features/python:1": {}
-	},
-	// Add host-gateway so host proxies (if any) are reachable; keep public DNS fallback
-	"runArgs": [
-		"--add-host=host.docker.internal:host-gateway",
-		"--dns=1.1.1.1",
-		"--dns=8.8.8.8"
-	],
-	// Explicitly clear proxy inside container to avoid inheriting unreachable host proxy (e.g., 127.0.0.1:7897)
-	"remoteEnv": {
-		"HTTP_PROXY": "",
-		"HTTPS_PROXY": "",
-		"ALL_PROXY": "",
-		"NO_PROXY": "localhost,127.0.0.1,::1"
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"github.copilot",
-				"github.copilot-chat"
-			]
-		}
-	},
-	"postCreateCommand": "make install"
+  "image": "mcr.microsoft.com/devcontainers/universal",
+  "remoteUser": "codespace",
+  "features": {},
+  "runArgs": [
+    "--privileged",
+    "--device=/dev/ttyACM0:/dev/ttyACM0",
+    "--device=/dev/ttyUSB0:/dev/ttyUSB0"
+  ],
+  "mounts": [
+    "source=/dev/bus/usb,target=/dev/bus/usb,type=bind",
+    "source=/dev/serial/by-id,target=/dev/serial/by-id,type=bind"
+  ],
+  "postCreateCommand": "sudo groupadd -f dialout && sudo usermod -aG dialout codespace"
 }
